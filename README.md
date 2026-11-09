@@ -35,7 +35,17 @@ git clone --recurse-submodules https://github.com/BioRoLa/corgi_ros2_ws.git
 
 ### 2.2 Build & install Livox-SDK2
 
-Please follow the guidance in [Livox-SDK2/README.md](https://github.com/Livox-SDK/Livox-SDK2/blob/master/README.md).
+Requires **Livox-SDK2 `master` at `c0796f0` (2026-09-21) or newer**. The driver uses the
+double-echo point type (`kLivoxLidarDoubleEchoData`, `LivoxLidarDoubleEchoRawPoint`), which
+first appears in SDK `08f523c`. That commit is newer than the latest tag, v1.3.1, so v1.3.1
+does **not** build. Build and install it to `/usr/local`:
+
+```shell
+git clone https://github.com/Livox-SDK/Livox-SDK2.git && cd Livox-SDK2
+git checkout c0796f0
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build -j"$(nproc)"
+sudo cmake --install build && sudo ldconfig
+```
 
 ### 2.3 Build
 
@@ -46,6 +56,10 @@ cd corgi_ros2_ws
 source /opt/ros/humble/setup.bash
 colcon build --packages-select livox_ros_driver2
 ```
+
+The parent workspace's `colcon.meta` supplies the required CMake arguments,
+`-DROS_EDITION=ROS2 -DDISTRO_ROS=humble`. Upstream renamed `HUMBLE_ROS` to `DISTRO_ROS`.
+Without `DISTRO_ROS`, the custom-message type-support target is not linked.
 
 ### 2.4 Run Livox ROS Driver 2
 
